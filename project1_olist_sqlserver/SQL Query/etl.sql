@@ -54,6 +54,35 @@ CREATE TABLE dim_order_items (
         REFERENCES dim_products(product_id)
 );
 
+-- Date Table
+CREATE TABLE dim_date (
+    DateKey INT PRIMARY KEY,
+    FullDate DATE,
+    Year INT,
+    Month INT,
+    MonthName NVARCHAR(20),
+    Quarter INT
+);
+
+-- Getting dates
+DECLARE @StartDate DATE = '2026-01-01'
+DECLARE @EndDate DATE = '2026-12-31' -- Take a look on Bz tables and change date 
+
+WHILE @StartDate <- @EndDate
+BEGIN 
+     INSERT INTO dim_date (DateKey, FullDate, Year, Month, MonthName, Quarter)
+     VALUES (
+        CONVERT(INT, FORMAT(@StartDate, 'yyyyMMdd')),
+        @StartDate,
+        YEAR(@StartDate),
+        MONTH(@StartDate),
+        DATENAME(MONTH, @StartDate),
+        DATEPART(QUARTER, @StartDate)
+    );
+    SET @StartDate = DATEADD(DAY, 1, @StartDate);
+END;
+
+
 
 
 
