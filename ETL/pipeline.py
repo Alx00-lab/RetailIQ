@@ -1,9 +1,12 @@
 import pandas as pd
+import os
 from loader import get_engine, load_all_dimensions
+
 
 # --------------------
 # 1. LOAD ------------
 # --------------------
+
 def load_data(path):
     return {
         "orders": pd.read_csv(f"{path}/olist_orders_dataset.csv"),
@@ -12,6 +15,10 @@ def load_data(path):
         "customers": pd.read_csv(f"{path}/olist_customers_dataset.csv"),
         "category_translation": pd.read_csv(f"{path}/product_category_name_translation.csv")
     }
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.abspath(os.path.join(BASE_DIR, 'C:\\Users\\Alexander\\Desktop\\RetailIQ\\logic', 'brazilian-ecommerce'))
+
 
 # -------------
 # 2. AUDIT ----
@@ -128,10 +135,10 @@ def run_pipeline(path):
     audit_df(df_main, "order_items")
     print(df_main.head(10))
     # 
-    engine = get_engine(server="AlexanderDNA", database="")
-    load_all_dimensions(df_main, df_products, df_orders, engine)
+    engine = get_engine(server="AlexanderDNA", database="RetailIQ_db")
+    load_all_dimensions(df_main, data['customers'], df_products, df_orders, engine)
 
     return df_main
 
-df_execute = run_pipeline("brazilian-ecommerce")
+df_execute = run_pipeline(DATA_PATH)
 

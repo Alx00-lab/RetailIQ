@@ -11,13 +11,13 @@ def get_engine(server: str, database: str) -> object:
     return create_engine(conn_str, fast_executemany=True)
 
 # --- Prepare Dimensions ---
-def prepare_dim_customers(df_main: pd.DataFrame) -> pd.DataFrame:
+def prepare_dim_customers(df_customers: pd.DataFrame) -> pd.DataFrame:
     cols = [
         'customer_unique_id', 'customer_id',
         'customer_zip_code_prefix', 'customer_city', 'customer_state'
     ]
     return (
-        df_main[cols]
+        df_customers[cols]
         .drop_duplicates(subset=['customer_unique_id'])
         .reset_index(drop=True)
     )
@@ -25,13 +25,13 @@ def prepare_dim_customers(df_main: pd.DataFrame) -> pd.DataFrame:
 # ---
 
 def prepare_dim_products(df_products: pd.DataFrame) -> pd.DataFrame:
-        cols = [
-            'product_id', 'product_category_name',
-            'product_name_lenght', 'product_description_lenght',
-            'product_photos_qty', 'product_weight_g',
-            'product_length_cm', 'product_height_cm', 'product_width_cm'
-        ]
-        return df_products[cols].drop_duplicates(subset=['product_id'])
+    cols = [
+        'product_id', 'product_category_name',
+        'product_name_lenght', 'product_description_lenght',
+        'product_photos_qty', 'product_weight_g',
+        'product_length_cm', 'product_height_cm', 'product_width_cm'
+    ]
+    return df_products[cols].drop_duplicates(subset=['product_id'])
 
 # --- 
 def prepare_dim_date(df_orders: pd.DataFrame) -> pd.DataFrame:
@@ -52,13 +52,13 @@ def prepare_dim_date(df_orders: pd.DataFrame) -> pd.DataFrame:
 
 # --- Loader ---
 
-def load_dimension(df: pd.DateFrame, table_name: str, engine) -> None:
+def load_dimension(df: pd.DataFrame, table_name: str, engine) -> None:
     print(f"\nLoading {table_name}...")
     try:
         df.to_sql(
             name=table_name,
             con=engine,
-            if_exist='append',
+            if_exists='append',
             index=False,
             schema="dbo"
         )
@@ -68,8 +68,8 @@ def load_dimension(df: pd.DateFrame, table_name: str, engine) -> None:
         raise # Re-raise so the pipeline stops — don't silently continue
 
 # --- ORCHESTRATE ---
-def load_all_dimensions(df_main, df_products_clean, df_orders_clean, engine):
-    dim_customers = prepare_dim_customers(df_main)
+def load_all_dimensions(df_main, df_customers, df_products_clean, df_orders_clean, engine):
+    dim_customers = prepare_dim_customers(df_customers)
     dim_products  = prepare_dim_products(df_products_clean)
     dim_date      = prepare_dim_date(df_orders_clean)
 
