@@ -49,12 +49,46 @@ def prepare_dim_date(df_orders: pd.DataFrame) -> pd.DataFrame:
 
     return df_date.drop_duplicates(subset=['DateKey']).sort_values('DateKey')
 
+#-----------------
+# --- orders ----
+#-----------------
+def prepare_dim_orders(df_main: pd.DataFrame) -> pd.DataFrame:
+    cols = [
+        'order_id', 'customer_unique_id', 'order_status',
+        'order_purchase_timestamp', 'order_approved_at',
+        'order_delivered_carrier_date', 'order_delivered_customer_date',
+        'order_estimated_delivery_date'
+    ]
+    return (
+        df_main[cols]
+        .drop_duplicates(subset=['order_id'])
+        .reset_index(drop=True)
+    )
+#---------------
+# --- FACT TABLE
+#---------------
+def prepare_fact_order_items(df_main: pd.DataFrame) -> pd.DataFrame:
+    df = df_main.copy()
+    df['DateKey'] = pd.to_datetime(df['order_purchase_timestamp']).dt.strftime('%Y%m%d').astype(int)
+    cols = [
+        'order_id', 'order_item_id', 'product_id', 'seller_id',
+        'DateKey', 'shipping_limit_date', 'price', 'freight_value'
+    ]
+    return df[cols].reset_index(drop=True)
 
+#---------------
 # --- Loader ---
-
+#---------------
 def load_dimension(df: pd.DataFrame, table_name: str, engine) -> None:
     print(f"\nLoading {table_name}...")
     try:
+        with engine.connect() as conn:
+            result = conn.execute(text(f"SELECT COUNT(*) FROM dbo.{table_name}"))
+            count_before = result.scalar()
+            if count_before > 0:
+                print(f" Skipping {table_name} (already has {count_before} rows. Truncate first if reload needed.)")
+                return
+            
         df.to_sql(
             name=table_name,
             con=engine,
@@ -72,13 +106,16 @@ def load_all_dimensions(df_main, df_customers, df_products_clean, df_orders_clea
     dim_customers = prepare_dim_customers(df_customers)
     dim_products  = prepare_dim_products(df_products_clean)
     dim_date      = prepare_dim_date(df_orders_clean)
-
+    dim_orders    = prepare_dim_orders(df_main)
+    fact_order_items  = prepare_fact_order_items(df_main)
 
     # remenber here the ones with FK-safe order
     load_dimension(dim_customers, "dim_customers", engine)
     load_dimension(dim_products,  "dim_products",  engine)
     load_dimension(dim_date,      "dim_date",      engine)
-
+    load_dimension(dim_orders,    "dim_orders", engine)     
+    load_dimension(fact_order_items, "fact_order_items", engine) 
+    
     print("\n All dimensions loaded successfully.")
 
 
