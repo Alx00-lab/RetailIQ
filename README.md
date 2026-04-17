@@ -88,7 +88,7 @@ dim_date ◄───────────────────┐  │   
   DateKey (PK)               │  │        │
   Year, Month, Quarter       │  │        │
                              │  │        │
-                    fact_order_items      │
+                    fact_order_items     │
                       order_id ──────────┘ → dim_orders
                       order_item_id           customer_unique_id (FK)
                       product_id (FK) ────────►
