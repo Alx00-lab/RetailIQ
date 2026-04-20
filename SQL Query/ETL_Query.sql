@@ -81,3 +81,4 @@ END;
 */
 
 
+SELECT * FROM fact_order_items;
