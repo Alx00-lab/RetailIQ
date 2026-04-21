@@ -17,7 +17,7 @@ def load_data(path):
     }
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_PATH = os.path.abspath(os.path.join(BASE_DIR, 'C:\\Users\\Alexander\\Desktop\\RetailIQ\\logic', 'brazilian-ecommerce'))
+DATA_PATH = os.path.abspath(os.path.join(BASE_DIR, '# ---- add your path here ---- ', 'brazilian-ecommerce'))
 
 
 # -------------
