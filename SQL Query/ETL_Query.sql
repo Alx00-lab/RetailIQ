@@ -60,6 +60,14 @@ CREATE TABLE fact_order_items (
     CONSTRAINT fk_order_items_date    FOREIGN KEY (DateKey)     REFERENCES dim_date(DateKey)  
 );
 
+
+-- Adding missing columns....
+ALTER TABLE fact_order_items
+    ADD total_order_value Decimal(10, 2),
+        delivery_days INT;
+
+TRUNCATE TABLE fact_order_items;
+
 -- REFACTORIZED CODE IS NOW BEING GENERATED ON PYTHON ETL....But If wanned uncomment the script and make it here
 /* 
 -- Populate dim_date
@@ -81,4 +89,4 @@ END;
 */
 
 
-SELECT * FROM fact_order_items;
+SELECT * FROM dim_orders;

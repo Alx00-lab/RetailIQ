@@ -135,7 +135,7 @@ def run_pipeline(path):
     audit_df(df_main, "order_items")
     print(df_main.head(10))
     # 
-    engine = get_engine(server="", database="") # REMENBER TO ADD YOUR VALUES HERE
+    engine = get_engine(server="AlexanderDNA", database="RetailIQ_db") # REMENBER TO ADD YOUR VALUES HERE
     load_all_dimensions(df_main, data['customers'], df_products, df_orders, engine)
 
     return df_main

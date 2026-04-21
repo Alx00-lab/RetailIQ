@@ -72,7 +72,8 @@ def prepare_fact_order_items(df_main: pd.DataFrame) -> pd.DataFrame:
     df['DateKey'] = pd.to_datetime(df['order_purchase_timestamp']).dt.strftime('%Y%m%d').astype(int)
     cols = [
         'order_id', 'order_item_id', 'product_id', 'seller_id',
-        'DateKey', 'shipping_limit_date', 'price', 'freight_value'
+        'DateKey', 'shipping_limit_date', 'price', 'freight_value', 
+        'total_order_value', 'delivery_days'
     ]
     return df[cols].reset_index(drop=True)
 
