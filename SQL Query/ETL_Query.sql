@@ -33,15 +33,12 @@ CREATE TABLE dim_date (
 -- Orders
 CREATE TABLE dim_orders (
     order_id                      VARCHAR(40) PRIMARY KEY,
-    customer_unique_id            VARCHAR(40),
     order_status                  NVARCHAR(20),
     order_purchase_timestamp      DATETIME2,
     order_approved_at             DATETIME2,
     order_delivered_carrier_date  DATETIME2,
     order_delivered_customer_date DATETIME2,
     order_estimated_delivery_date DATETIME2,            
-    CONSTRAINT fk_orders_customer FOREIGN KEY (customer_unique_id)
-        REFERENCES dim_customers(customer_unique_id)
 );
 
 -- Fact table
@@ -49,44 +46,32 @@ CREATE TABLE fact_order_items (
     order_id            VARCHAR(40),
     order_item_id       INT,
     product_id          VARCHAR(40),
+    customer_unique_id  VARCHAR(40),
+    DateKey             INT,        
     seller_id           VARCHAR(40),
-    DateKey             INT,                            
-    shipping_limit_date DATETIME2,
-    price               DECIMAL(10,2),                
-    freight_value       DECIMAL(10,2),                 
-    CONSTRAINT pk_order_items     PRIMARY KEY (order_id, order_item_id),
-    CONSTRAINT fk_order_items_order   FOREIGN KEY (order_id)   REFERENCES dim_orders(order_id),
-    CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES dim_products(product_id),
-    CONSTRAINT fk_order_items_date    FOREIGN KEY (DateKey)     REFERENCES dim_date(DateKey)  
+    price               DECIMAL(10,2),
+    freight_value       DECIMAL(10,2),
+    total_order_value   DECIMAL(10,2),
+    delivery_days       INT,
+    shipping_limit_date DATETIME2,               
+                     
+    CONSTRAINT pk_order_items PRIMARY KEY (order_id, order_item_id),
+    CONSTRAINT fk_fact_product FOREIGN KEY (product_id) REFERENCES dim_products(product_id),
+    CONSTRAINT fk_fact_customer FOREIGN KEY (customer_unique_id) REFERENCES dim_customers(customer_unique_id),
+    CONSTRAINT fk_fact_date FOREIGN KEY (DateKey) REFERENCES dim_date(DateKey),
+    CONSTRAINT fk_fact_order FOREIGN KEY (order_id) REFERENCES dim_orders(order_id)
+   
 );
 
 
--- Adding missing columns....
-ALTER TABLE fact_order_items
-    ADD total_order_value Decimal(10, 2),
-        delivery_days INT;
-
-TRUNCATE TABLE fact_order_items;
-
--- REFACTORIZED CODE IS NOW BEING GENERATED ON PYTHON ETL....But If wanned uncomment the script and make it here
-/* 
--- Populate dim_date
-DECLARE @StartDate DATE = '2016-01-01'
-DECLARE @EndDate   DATE = '2018-12-31'
-WHILE @StartDate <= @EndDate
-BEGIN
-    INSERT INTO dim_date (DateKey, FullDate, Year, Month, MonthName, Quarter)
-    VALUES (
-        CONVERT(INT, FORMAT(@StartDate, 'yyyyMMdd')),
-        @StartDate,
-        YEAR(@StartDate),
-        MONTH(@StartDate),
-        DATENAME(MONTH, @StartDate),
-        DATEPART(QUARTER, @StartDate)
-    );
-    SET @StartDate = DATEADD(DAY, 1, @StartDate);
-END;
-*/
 
 
-SELECT * FROM dim_orders;
+
+
+
+
+
+
+
+
+

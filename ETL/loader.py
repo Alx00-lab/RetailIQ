@@ -54,7 +54,7 @@ def prepare_dim_date(df_orders: pd.DataFrame) -> pd.DataFrame:
 #-----------------
 def prepare_dim_orders(df_main: pd.DataFrame) -> pd.DataFrame:
     cols = [
-        'order_id', 'customer_unique_id', 'order_status',
+        'order_id', 'order_status',
         'order_purchase_timestamp', 'order_approved_at',
         'order_delivered_carrier_date', 'order_delivered_customer_date',
         'order_estimated_delivery_date'
@@ -71,9 +71,9 @@ def prepare_fact_order_items(df_main: pd.DataFrame) -> pd.DataFrame:
     df = df_main.copy()
     df['DateKey'] = pd.to_datetime(df['order_purchase_timestamp']).dt.strftime('%Y%m%d').astype(int)
     cols = [
-        'order_id', 'order_item_id', 'product_id', 'seller_id',
-        'DateKey', 'shipping_limit_date', 'price', 'freight_value', 
-        'total_order_value', 'delivery_days'
+        'order_id', 'order_item_id', 'product_id', 'customer_unique_id', 'DateKey', 
+        'seller_id', 'price', 'freight_value', 'total_order_value', 
+        'delivery_days', 'shipping_limit_date'
     ]
     return df[cols].reset_index(drop=True)
 
